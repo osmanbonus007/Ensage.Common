@@ -181,7 +181,7 @@ namespace Ensage.Common.Objects
         /// <returns>
         ///     The <see cref="DotaTexture" />.
         /// </returns>
-        public static DotaTexture GetSpellTexture(string otherName)
+        public static DotaTexture GetOtherTexture(string otherName)
         {
             var name = "materials/ensage_ui/other/" + otherName + ".vmat";
             DotaTexture texture;
