@@ -1,5 +1,5 @@
 ﻿// <copyright file="HeroExtensions.cs" company="EnsageSharp">
-//    Copyright (c) 2016 EnsageSharp.
+//    Copyright (c) 2017 EnsageSharp.
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,6 @@
 namespace Ensage.Common.Extensions
 {
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
 
     using Ensage.Common.Objects;
@@ -53,7 +52,7 @@ namespace Ensage.Common.Extensions
         {
             return
                 hero.HasModifiers(
-                    new[] { "modifier_item_ultimate_scepter_consumed", "modifier_item_ultimate_scepter" }, 
+                    new[] { "modifier_item_ultimate_scepter_consumed", "modifier_item_ultimate_scepter" },
                     false);
         }
 
@@ -121,12 +120,12 @@ namespace Ensage.Common.Extensions
                    && (cullingBlade
                            ? !hero.HasModifier("modifier_skeleton_king_reincarnation_scepter_active")
                            : !hero.HasModifiers(
-                               new[]
-                                   {
-                                       "modifier_dazzle_shallow_grave", "modifier_oracle_false_promise", 
-                                       "modifier_skeleton_king_reincarnation_scepter_active"
-                                   }, 
-                               false));
+                                 new[]
+                                     {
+                                         "modifier_dazzle_shallow_grave", "modifier_oracle_false_promise",
+                                         "modifier_skeleton_king_reincarnation_scepter_active"
+                                     },
+                                 false));
         }
 
         /// <summary>
@@ -169,12 +168,12 @@ namespace Ensage.Common.Extensions
                 invis =
                     hero.Inventory.Items.FirstOrDefault(
                         x =>
-                        x.StoredName() == "item_invis_sword" || x.StoredName() == "item_silver_edge"
-                        || x.StoredName() == "item_glimmer_cape");
+                            x.StoredName() == "item_invis_sword" || x.StoredName() == "item_silver_edge"
+                            || x.StoredName() == "item_glimmer_cape");
             }
 
-            var canGoInvis = (invis != null && hero.CanCast() && invis.CanBeCasted())
-                             || (riki != null && riki.Level > 0 && !hero.IsSilenced());
+            var canGoInvis = invis != null && hero.CanCast() && invis.CanBeCasted()
+                             || riki != null && riki.Level > 0 && !hero.IsSilenced();
             if (!boolDictionary.ContainsKey(n))
             {
                 boolDictionary.Add(n, canGoInvis);
@@ -225,6 +224,14 @@ namespace Ensage.Common.Extensions
             var classId = hero.ClassID;
             switch (classId)
             {
+                case ClassID.CDOTA_Unit_Hero_Tiny:
+                    var grow = hero.Spellbook.SpellR;
+                    if (grow != null && grow.Level > 0 && hero.HasItem(ClassID.CDOTA_Item_UltimateScepter))
+                    {
+                        bonus = grow.GetAbilityData("bonus_range_scepter");
+                    }
+
+                    break;
                 case ClassID.CDOTA_Unit_Hero_TemplarAssassin:
                     var psi = hero.Spellbook.SpellE;
                     if (psi != null && psi.Level > 0)
@@ -275,6 +282,13 @@ namespace Ensage.Common.Extensions
                 }
             }
 
+            // talents
+            var talent = hero.Spellbook.Spells.FirstOrDefault(x => x.Name.StartsWith("special_bonus_attack_range_"));
+            if (talent?.Level > 0)
+            {
+                bonus += talent.GetAbilityData("value");
+            }
+
             range = (float)(hero.AttackRange + bonus + hero.HullRadius);
             if (!rangeDictionary.ContainsKey(hero.Handle))
             {
@@ -288,6 +302,47 @@ namespace Ensage.Common.Extensions
             Utils.Sleep(500, "Common.GetAttackRange." + hero.Handle);
 
             return range;
+        }
+
+        /// <summary>
+        ///     Returns real name of the hero
+        /// </summary>
+        /// <param name="hero">
+        ///     The hero.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="string" />.
+        /// </returns>
+        public static string GetRealName(this Hero hero)
+        {
+            var classId = hero.ClassID;
+            switch (classId)
+            {
+                case ClassID.CDOTA_Unit_Hero_DoomBringer:
+                    return "Doom";
+                case ClassID.CDOTA_Unit_Hero_Furion:
+                    return "Nature's Prophet";
+                case ClassID.CDOTA_Unit_Hero_Magnataur:
+                    return "Magnus";
+                case ClassID.CDOTA_Unit_Hero_Necrolyte:
+                    return "Necrophos";
+                case ClassID.CDOTA_Unit_Hero_Nevermore:
+                    return "ShadowFiend";
+                case ClassID.CDOTA_Unit_Hero_Obsidian_Destroyer:
+                    return "OutworldDevourer";
+                case ClassID.CDOTA_Unit_Hero_Rattletrap:
+                    return "Clockwerk";
+                case ClassID.CDOTA_Unit_Hero_Shredder:
+                    return "Timbersaw";
+                case ClassID.CDOTA_Unit_Hero_SkeletonKing:
+                    return "WraithKing";
+                case ClassID.CDOTA_Unit_Hero_Wisp:
+                    return "Io";
+                case ClassID.CDOTA_Unit_Hero_Zuus:
+                    return "Zeus";
+            }
+
+            return classId.ToString().Substring("CDOTA_Unit_Hero_".Length).Replace("_", string.Empty);
         }
 
         /// <summary>
@@ -332,47 +387,6 @@ namespace Ensage.Common.Extensions
         public static double ProjectileSpeed(this Hero hero)
         {
             return UnitDatabase.GetProjectileSpeed(hero);
-        }
-
-        /// <summary>
-        /// Returns real name of the hero
-        /// </summary>
-        /// <param name="hero">
-        /// The hero.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-        public static string GetRealName(this Hero hero)
-        {
-            var classId = hero.ClassID;
-            switch (classId)
-            {
-                case ClassID.CDOTA_Unit_Hero_DoomBringer:
-                    return "Doom";
-                case ClassID.CDOTA_Unit_Hero_Furion:
-                    return "Nature's Prophet";
-                case ClassID.CDOTA_Unit_Hero_Magnataur:
-                    return "Magnus";
-                case ClassID.CDOTA_Unit_Hero_Necrolyte:
-                    return "Necrophos";
-                case ClassID.CDOTA_Unit_Hero_Nevermore:
-                    return "ShadowFiend";
-                case ClassID.CDOTA_Unit_Hero_Obsidian_Destroyer:
-                    return "OutworldDevourer";
-                case ClassID.CDOTA_Unit_Hero_Rattletrap:
-                    return "Clockwerk";
-                case ClassID.CDOTA_Unit_Hero_Shredder:
-                    return "Timbersaw";
-                case ClassID.CDOTA_Unit_Hero_SkeletonKing:
-                    return "WraithKing";
-                case ClassID.CDOTA_Unit_Hero_Wisp:
-                    return "Io";
-                case ClassID.CDOTA_Unit_Hero_Zuus:
-                    return "Zeus";
-            }
-
-            return classId.ToString().Substring("CDOTA_Unit_Hero_".Length).Replace("_", string.Empty);
         }
 
         #endregion

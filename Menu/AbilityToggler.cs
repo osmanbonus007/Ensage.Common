@@ -1,5 +1,5 @@
 ﻿// <copyright file="AbilityToggler.cs" company="EnsageSharp">
-//    Copyright (c) 2016 EnsageSharp.
+//    Copyright (c) 2017 EnsageSharp.
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,6 @@ namespace Ensage.Common.Menu
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Ensage.Common.Objects;
 
@@ -42,6 +41,8 @@ namespace Ensage.Common.Menu
         /// </summary>
         public Dictionary<string, bool> SValuesDictionary;
 
+        private Random random;
+
         #endregion
 
         #region Constructors and Destructors
@@ -54,29 +55,32 @@ namespace Ensage.Common.Menu
         /// </param>
         public AbilityToggler(Dictionary<string, bool> abilityDictionary)
         {
-            this.Dictionary = abilityDictionary;
+            this.random = new Random();
+            this.Dictionary = new Dictionary<string, bool>();
             this.PositionDictionary = new Dictionary<string, float[]>();
             this.SValuesDictionary = new Dictionary<string, bool>();
-            foreach (var v in this.Dictionary.Where(v => !Menu.TextureDictionary.ContainsKey(v.Key)))
+            foreach (var v in abilityDictionary)
             {
-                Menu.TextureDictionary.Add(
-                    v.Key, 
-                    v.Key.Substring(0, "item".Length) == "item"
-                        ? Textures.GetTexture("materials/ensage_ui/items/" + v.Key.Substring("item_".Length) + ".vmat")
-                        : Textures.GetTexture("materials/ensage_ui/spellicons/" + v.Key + ".vmat"));
+                this.Add(v.Key, v.Value);
+
+                // Menu.TextureDictionary.Add(
+                // v.Key, 
+                // v.Key.Substring(0, "item".Length) == "item"
+                // ? Textures.GetTexture("materials/ensage_ui/items/" + v.Key.Substring("item_".Length) + ".vmat")
+                // : Textures.GetTexture("materials/ensage_ui/spellicons/" + v.Key + ".vmat"));
             }
 
-            var posDict = this.PositionDictionary;
-            foreach (var v in this.Dictionary.Where(v => !posDict.ContainsKey(v.Key)))
-            {
-                this.PositionDictionary.Add(v.Key, new float[] { 0, 0 });
-            }
+            // var posDict = this.PositionDictionary;
+            // foreach (var v in this.Dictionary.Where(v => !posDict.ContainsKey(v.Key)))
+            // {
+            // this.PositionDictionary.Add(v.Key, new float[] { 0, 0 });
+            // }
 
-            var svDict = this.SValuesDictionary;
-            foreach (var v in this.Dictionary.Where(v => !svDict.ContainsKey(v.Key)))
-            {
-                this.SValuesDictionary.Add(v.Key, v.Value);
-            }
+            // var svDict = this.SValuesDictionary;
+            // foreach (var v in this.Dictionary.Where(v => !svDict.ContainsKey(v.Key)))
+            // {
+            // this.SValuesDictionary.Add(v.Key, v.Value);
+            // }
         }
 
         #endregion
@@ -94,9 +98,57 @@ namespace Ensage.Common.Menu
         /// </param>
         public void Add(string name, bool defaultValue = true)
         {
+            var textureName = name;
             if (this.Dictionary.ContainsKey(name))
             {
-                Console.WriteLine(@"This ability(" + name + @") is already added in AbilityToggler");
+                name += this.random.Next(1, 9);
+            }
+
+            if (this.SValuesDictionary.ContainsKey(name))
+            {
+                defaultValue = this.SValuesDictionary[name];
+            }
+
+            this.Dictionary.Add(name, defaultValue);
+            if (!Menu.TextureDictionary.ContainsKey(name))
+            {
+                Menu.TextureDictionary.Add(
+                    name,
+                    textureName.Substring(0, "item".Length) == "item"
+                        ? Textures.GetTexture(
+                            "materials/ensage_ui/items/" + textureName.Substring("item_".Length) + ".vmat")
+                        : Textures.GetTexture("materials/ensage_ui/spellicons/" + textureName + ".vmat"));
+            }
+
+            if (!this.SValuesDictionary.ContainsKey(name))
+            {
+                this.SValuesDictionary.Add(name, defaultValue);
+            }
+
+            if (this.PositionDictionary.ContainsKey(name))
+            {
+                return;
+            }
+
+            this.PositionDictionary.Add(name, new float[] { 0, 0 });
+        }
+
+        /// <summary>
+        ///     You cannot add duplicates with this method, use Add(name, defaultValue) instead
+        /// </summary>
+        /// <param name="name">
+        ///     The name.
+        /// </param>
+        /// <param name="textureName">
+        ///     The texture name.
+        /// </param>
+        /// <param name="defaultValue">
+        ///     The default value.
+        /// </param>
+        public void Add(string name, string textureName, bool defaultValue = true)
+        {
+            if (this.Dictionary.ContainsKey(name))
+            {
                 return;
             }
 
@@ -109,10 +161,11 @@ namespace Ensage.Common.Menu
             if (!Menu.TextureDictionary.ContainsKey(name))
             {
                 Menu.TextureDictionary.Add(
-                    name, 
-                    name.Substring(0, "item".Length) == "item"
-                        ? Textures.GetTexture("materials/ensage_ui/items/" + name.Substring("item_".Length) + ".vmat")
-                        : Textures.GetTexture("materials/ensage_ui/spellicons/" + name + ".vmat"));
+                    name,
+                    textureName.Substring(0, "item".Length) == "item"
+                        ? Textures.GetTexture(
+                            "materials/ensage_ui/items/" + textureName.Substring("item_".Length) + ".vmat")
+                        : Textures.GetTexture("materials/ensage_ui/spellicons/" + textureName + ".vmat"));
             }
 
             if (!this.SValuesDictionary.ContainsKey(name))

@@ -1,5 +1,5 @@
 ﻿// <copyright file="Calculations.cs" company="EnsageSharp">
-//    Copyright (c) 2016 EnsageSharp.
+//    Copyright (c) 2017 EnsageSharp.
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -33,40 +33,40 @@ namespace Ensage.Common.Extensions.Damage
         private static readonly List<DamageBlocks> DamageBlocksList = new List<DamageBlocks>
                                                                           {
                                                                               new DamageBlocks(
-                                                                                  "modifier_item_crimson_guard_extra", 
-                                                                                  "block_damage_melee_active", 
-                                                                                  "block_damage_ranged_active", 
-                                                                                  "item_crimson_guard", 
-                                                                                  true), 
+                                                                                  "modifier_item_crimson_guard_extra",
+                                                                                  "block_damage_melee_active",
+                                                                                  "block_damage_ranged_active",
+                                                                                  "item_crimson_guard",
+                                                                                  true),
                                                                               new DamageBlocks(
-                                                                                  "modifier_tidehunter_kraken_shell", 
-                                                                                  "damage_reduction", 
-                                                                                  "damage_reduction", 
-                                                                                  "tidehunter_kraken_shell", 
-                                                                                  false), 
+                                                                                  "modifier_tidehunter_kraken_shell",
+                                                                                  "damage_reduction",
+                                                                                  "damage_reduction",
+                                                                                  "tidehunter_kraken_shell",
+                                                                                  false),
                                                                               new DamageBlocks(
-                                                                                  "modifier_item_crimson_guard", 
-                                                                                  "block_damage_melee", 
-                                                                                  "block_damage_ranged", 
-                                                                                  "item_crimson_guard", 
-                                                                                  true), 
+                                                                                  "modifier_item_crimson_guard",
+                                                                                  "block_damage_melee",
+                                                                                  "block_damage_ranged",
+                                                                                  "item_crimson_guard",
+                                                                                  true),
                                                                               new DamageBlocks(
-                                                                                  "modifier_item_vanguard", 
-                                                                                  "block_damage_melee", 
-                                                                                  "block_damage_ranged", 
-                                                                                  "item_vanguard", 
-                                                                                  true), 
+                                                                                  "modifier_item_vanguard",
+                                                                                  "block_damage_melee",
+                                                                                  "block_damage_ranged",
+                                                                                  "item_vanguard",
+                                                                                  true),
                                                                               new DamageBlocks(
-                                                                                  "modifier_item_poor_mans_shield", 
-                                                                                  "damage_block_melee", 
-                                                                                  "damage_block_ranged", 
-                                                                                  "item_poor_mans_shield", 
-                                                                                  true), 
+                                                                                  "modifier_item_poor_mans_shield",
+                                                                                  "damage_block_melee",
+                                                                                  "damage_block_ranged",
+                                                                                  "item_poor_mans_shield",
+                                                                                  true),
                                                                               new DamageBlocks(
-                                                                                  "modifier_item_stout_shield", 
-                                                                                  "damage_block_melee", 
-                                                                                  "damage_block_ranged", 
-                                                                                  "item_stout_shield", 
+                                                                                  "modifier_item_stout_shield",
+                                                                                  "damage_block_melee",
+                                                                                  "damage_block_ranged",
+                                                                                  "item_stout_shield",
                                                                                   true)
                                                                           };
 
@@ -107,112 +107,105 @@ namespace Ensage.Common.Extensions.Damage
             ExternalDmgAmps.Add(
                 new ExternalDmgAmps
                     {
-                        ModifierName = "modifier_shadow_demon_soul_catcher", SourceTeam = -1, Amp = "bonus_damage_taken", 
-                        SourceSpellName = "shadow_demon_soul_catcher", HeroId = ClassID.CDOTA_Unit_Hero_Shadow_Demon, 
+                        ModifierName = "modifier_shadow_demon_soul_catcher", SourceTeam = -1, Amp = "bonus_damage_taken",
+                        SourceSpellName = "shadow_demon_soul_catcher", HeroId = ClassID.CDOTA_Unit_Hero_Shadow_Demon,
                         Type = DamageType.Pure
                     });
 
             ExternalDmgAmps.Add(
                 new ExternalDmgAmps
                     {
-                        ModifierName = "modifier_bloodseeker_bloodrage", SourceTeam = -2, Amp = "damage_increase_pct", 
-                        SourceSpellName = "bloodseeker_bloodrage", HeroId = ClassID.CDOTA_Unit_Hero_Bloodseeker, 
+                        ModifierName = "modifier_bloodseeker_bloodrage", SourceTeam = -2, Amp = "damage_increase_pct",
+                        SourceSpellName = "bloodseeker_bloodrage", HeroId = ClassID.CDOTA_Unit_Hero_Bloodseeker,
                         Type = DamageType.Pure
                     });
 
             ExternalDmgAmps.Add(
                 new ExternalDmgAmps
                     {
-                        ModifierName = "modifier_slardar_sprint", SourceSpellName = "slardar_sprint", Amp = "bonus_damage", 
+                        ModifierName = "modifier_slardar_sprint", SourceSpellName = "slardar_sprint", Amp = "bonus_damage",
                         HeroId = ClassID.CDOTA_Unit_Hero_Slardar
                     });
 
             ExternalDmgAmps.Add(
                 new ExternalDmgAmps
                     {
-                        ModifierName = "modifier_oracle_fates_edict", SourceSpellName = "oracle_fates_edict", 
-                        HeroId = ClassID.CDOTA_Unit_Hero_Oracle, Amp = "damage_amp"
-                    });
-
-            ExternalDmgAmps.Add(
-                new ExternalDmgAmps
-                    {
-                        ModifierName = "modifier_item_mask_of_madness_berserk", SourceSpellName = "item_mask_of_madness", 
-                        Amp = "berserk_extra_damage"
+                        ModifierName = "modifier_chen_penitence", SourceSpellName = "chen_penitence",
+                        Amp = "bonus_damage_taken", HeroId = ClassID.CDOTA_Unit_Hero_Chen,
                     });
 
             ExternalDmgReductions.Add(
                 new ExternalDmgReductions
                     {
-                        ModifierName = "modifier_wisp_overcharge", SourceSpellName = "wisp_overcharge", 
+                        ModifierName = "modifier_wisp_overcharge", SourceSpellName = "wisp_overcharge",
                         HeroID = ClassID.CDOTA_Unit_Hero_Wisp, Reduce = "bonus_damage_pct", Type = 1, SourceTeam = 1
                     });
 
             ExternalDmgReductions.Add(
                 new ExternalDmgReductions
                     {
-                        ModifierName = "modifier_spectre_dispersion", SourceTeam = 0, Reduce = "damage_reflection_pct", 
+                        ModifierName = "modifier_spectre_dispersion", SourceTeam = 0, Reduce = "damage_reflection_pct",
                         HeroID = ClassID.CDOTA_Unit_Hero_Spectre, SourceSpellName = "spectre_dispersion", Type = 1
                     });
 
             ExternalDmgReductions.Add(
                 new ExternalDmgReductions
                     {
-                        ModifierName = "modifier_nyx_assassin_burrow", SourceSpellName = "nyx_assassin_burrow", 
+                        ModifierName = "modifier_nyx_assassin_burrow", SourceSpellName = "nyx_assassin_burrow",
                         HeroID = ClassID.CDOTA_Unit_Hero_Nyx_Assassin, Reduce = "damage_reduction", Type = 1
                     });
 
             ExternalDmgReductions.Add(
                 new ExternalDmgReductions
                     {
-                        ModifierName = "modifier_winter_wyvern_winters_curse", 
-                        HeroID = ClassID.CDOTA_Unit_Hero_Winter_Wyvern, SourceSpellName = "winter_wyvern_winters_curse", 
+                        ModifierName = "modifier_winter_wyvern_winters_curse",
+                        HeroID = ClassID.CDOTA_Unit_Hero_Winter_Wyvern, SourceSpellName = "winter_wyvern_winters_curse",
                         Reduce = "damage_reduction", Type = 1
                     });
 
             ExternalDmgReductions.Add(
                 new ExternalDmgReductions
                     {
-                        ModifierName = "modifier_ursa_enrage", SourceSpellName = "ursa_enrage", 
+                        ModifierName = "modifier_ursa_enrage", SourceSpellName = "ursa_enrage",
                         HeroID = ClassID.CDOTA_Unit_Hero_Ursa, Reduce = "damage_reduction", Type = 1
                     });
 
             ExternalDmgReductions.Add(
                 new ExternalDmgReductions
                     {
-                        ModifierName = "modifier_templar_assassin_refraction_absorb", 
-                        HeroID = ClassID.CDOTA_Unit_Hero_TemplarAssassin, SourceSpellName = "templar_assassin_refraction", 
-                        Type = 1
+                        ModifierName = "modifier_templar_assassin_refraction_absorb",
+                        HeroID = ClassID.CDOTA_Unit_Hero_TemplarAssassin,
+                        SourceSpellName = "templar_assassin_refraction", Type = 1
                     });
 
             ExternalDmgReductions.Add(
                 new ExternalDmgReductions
                     {
-                        ModifierName = "modifier_treant_living_armor", Type = 0, SourceTeam = 1, 
-                        SourceSpellName = "treant_living_armor", HeroID = ClassID.CDOTA_Unit_Hero_Treant, 
+                        ModifierName = "modifier_treant_living_armor", Type = 0, SourceTeam = 1,
+                        SourceSpellName = "treant_living_armor", HeroID = ClassID.CDOTA_Unit_Hero_Treant,
                         Reduce = "damage_block"
                     });
 
             ExternalDmgReductions.Add(
                 new ExternalDmgReductions
                     {
-                        ModifierName = "modifier_abaddon_aphotic_shield", Type = 2, SourceTeam = 1, 
-                        SourceSpellName = "abaddon_aphotic_shield", HeroID = ClassID.CDOTA_Unit_Hero_Abaddon, 
+                        ModifierName = "modifier_abaddon_aphotic_shield", Type = 2, SourceTeam = 1,
+                        SourceSpellName = "abaddon_aphotic_shield", HeroID = ClassID.CDOTA_Unit_Hero_Abaddon,
                         Reduce = "damage_absorb"
                     });
 
             ExternalDmgReductions.Add(
                 new ExternalDmgReductions
                     {
-                        ModifierName = "modifier_ember_spirit_flame_guard", Type = 0, SourceTeam = 0, 
-                        HeroID = ClassID.CDOTA_Unit_Hero_EmberSpirit, SourceSpellName = "ember_spirit_flame_guard", 
+                        ModifierName = "modifier_ember_spirit_flame_guard", Type = 0, SourceTeam = 0,
+                        HeroID = ClassID.CDOTA_Unit_Hero_EmberSpirit, SourceSpellName = "ember_spirit_flame_guard",
                         Reduce = "absorb_amount", MagicOnly = true
                     });
 
             ExternalDmgReductions.Add(
                 new ExternalDmgReductions
                     {
-                        ModifierName = "modifier_item_pipe_barrier", Type = 0, SourceSpellName = "item_pipe", 
+                        ModifierName = "modifier_item_pipe_barrier", Type = 0, SourceSpellName = "item_pipe",
                         Reduce = "barrier_block", MagicOnly = true
                     });
         }
@@ -252,13 +245,13 @@ namespace Ensage.Common.Extensions.Damage
         ///     The <see cref="float" />.
         /// </returns>
         public static float DamageTaken(
-            this Unit target, 
-            float dmg, 
-            DamageType dmgType, 
-            Unit source, 
-            bool throughBKB = false, 
-            double minusArmor = 0d, 
-            double minusDamageResistancePerc = 0d, 
+            this Unit target,
+            float dmg,
+            DamageType dmgType,
+            Unit source,
+            bool throughBKB = false,
+            double minusArmor = 0d,
+            double minusDamageResistancePerc = 0d,
             double minusMagicResistancePerc = 0d)
         {
             if (target.IsInvul())
@@ -284,7 +277,6 @@ namespace Ensage.Common.Extensions.Damage
             var abaddonRedirect = false;
             var kunkkaGhostShipAbsorb = false;
             var iceBlast = false;
-            var chenPenitence = false;
 
             if (dmgType == DamageType.Physical && target.IsAttackImmune())
             {
@@ -387,9 +379,6 @@ namespace Ensage.Common.Extensions.Damage
                     case "modifier_ice_blast":
                         iceBlast = true;
                         break;
-                    case "chen_penitence":
-                        chenPenitence = true;
-                        break;
                 }
             }
 
@@ -469,7 +458,7 @@ namespace Ensage.Common.Extensions.Damage
             {
                 var id = target.Handle + v.ModifierName;
                 var sleeping = modifierSleeper.Sleeping(id);
-                if ((sleeping && !modifierDictionary[id]) || (!sleeping && modifiers.All(x => x.Name != v.ModifierName)))
+                if (sleeping && !modifierDictionary[id] || !sleeping && modifiers.All(x => x.Name != v.ModifierName))
                 {
                     if (!sleeping)
                     {
@@ -624,7 +613,7 @@ namespace Ensage.Common.Extensions.Damage
                         continue;
                     }
 
-                    reduceProc = reduceProc + 0.7;
+                    reduceProc = reduceProc + 0.6;
                 }
             }
 
@@ -635,10 +624,6 @@ namespace Ensage.Common.Extensions.Damage
                 {
                     var baseAmp = .05 * spell.Level;
                     var owner = spell.Owner as Hero;
-                    if (owner.AghanimState())
-                    {
-                        baseAmp = baseAmp + .1;
-                    }
 
                     var distance = target.Distance2D(owner);
                     if (distance <= 200)
@@ -658,11 +643,15 @@ namespace Ensage.Common.Extensions.Damage
 
             if (abaddonRedirect)
             {
-                reduceOther += 0.35;
+                reduceOther += 0.5;
             }
             else if (kunkkaGhostShipAbsorb)
             {
-                reduceOther += 0.5;
+                var spell = Abilities.FindAbility("kunkka_ghostship");
+                if (spell != null)
+                {
+                    reduceOther += spell.GetAbilityData("ghostship_absorb") / 100;
+                }
             }
 
             var sourceModifiers = source.Modifiers.ToList();
@@ -687,19 +676,19 @@ namespace Ensage.Common.Extensions.Damage
                 var spell = Abilities.FindAbility("bloodseeker_bloodrage");
                 if (spell != null)
                 {
-                    var bloodrite = spell.GetAbilityData("damage_increase_pct");
+                    var bloodrage = spell.GetAbilityData("damage_increase_pct") / 100;
                     if (target.Distance2D(source) > 2200)
                     {
-                        bloodrite /= 2;
+                        bloodrage /= 2;
                     }
 
-                    ampFromMe += bloodrite;
+                    ampFromMe += bloodrage;
                 }
             }
 
             if (silverEdge)
             {
-                ampFromMe -= 0.4;
+                ampFromMe -= 0.5;
             }
 
             if (iceBlast)
@@ -740,8 +729,8 @@ namespace Ensage.Common.Extensions.Damage
                     var resist = 1 - (1 - target.MagicDamageResist) * (1 + (float)minusMagicResistancePerc / 100);
                     tempDmg =
                         (float)
-                        ((tempDmg * (1 - manaShield - reduceOther) - magOnly) * (1 + amp - reduceProc) * (1 + ampFromMe)
-                         * (1 - resist) - reduceStatic + aa);
+                        ((tempDmg * (1 - manaShield) * (1 - reduceOther) - magOnly) * (1 + amp - reduceProc)
+                         * (1 + ampFromMe) * (1 - resist) - reduceStatic + aa);
                     break;
                 case DamageType.Pure:
                     if (!throughBKB && target.IsMagicImmune())
@@ -752,7 +741,7 @@ namespace Ensage.Common.Extensions.Damage
                     {
                         tempDmg =
                             (float)
-                            (tempDmg * (1 - manaShield - reduceOther) * (1 + amp - reduceProc) * (1 + ampFromMe)
+                            (tempDmg * (1 - manaShield) * (1 - reduceOther) * (1 + amp - reduceProc) * (1 + ampFromMe)
                              - reduceStatic + aa);
                     }
 
@@ -763,22 +752,9 @@ namespace Ensage.Common.Extensions.Damage
                         return 0;
                     }
 
-                    if (!throughBKB)
-                    {
-                        if (chenPenitence)
-                        {
-                            var ability = Abilities.FindAbility("chen_penitence", target.GetEnemyTeam());
-                            if (ability != null)
-                            {
-                                var bonus = ability.GetAbilityData("bonus_damage_taken");
-                                amp += bonus / 100;
-                            }
-                        }
-                    }
-
                     tempDmg =
                         (float)
-                        ((tempDmg * (1 - manaShield - reduceOther) - reduceBlock) * (1 + amp - reduceProc)
+                        ((tempDmg * (1 - manaShield) * (1 - reduceOther) - reduceBlock) * (1 + amp - reduceProc)
                          * (1 + ampFromMe) * (1 - target.DamageResist * (1 - minusDamageResistancePerc / 100))
                          + 0.06 * minusArmor / (1 + 0.06 * Math.Abs(minusArmor))) - reduceStatic + aa;
                     break;
@@ -833,24 +809,41 @@ namespace Ensage.Common.Extensions.Damage
         ///     The <see cref="float" />.
         /// </returns>
         public static float SpellDamageTaken(
-            this Unit target, 
-            float dmg, 
-            DamageType dmgType, 
-            Unit source, 
-            string spellName, 
-            bool throughBKB = false, 
-            double minusArmor = 0d, 
-            double minusDamageResistancePerc = 0d, 
+            this Unit target,
+            float dmg,
+            DamageType dmgType,
+            Unit source,
+            string spellName,
+            bool throughBKB = false,
+            double minusArmor = 0d,
+            double minusDamageResistancePerc = 0d,
             double minusMagicResistancePerc = 0d)
         {
+            var totalSpellAmp = 0f;
             var damage = dmg;
+
+            if (dmgType == DamageType.Magical)
+            {
+                var raindrop = target.FindItem("item_infused_raindrop");
+                if (raindrop != null && raindrop.CanBeCasted() && damage >= raindrop.GetAbilityData("min_damage"))
+                {
+                    damage -= Math.Min(raindrop.GetAbilityData("magic_damage_block"), damage);
+                }
+            }
+
+            var talent = source.Spellbook.Spells.FirstOrDefault(x => x.Name.Contains("special_bonus_spell_amplify"));
+            if (talent?.Level > 0)
+            {
+                totalSpellAmp += talent.GetAbilityData("value") / 100f;
+            }
+
             if (spellName != "axe_culling_blade")
             {
                 foreach (var item in source.Inventory.Items)
                 {
                     if (item.StoredName() == "item_aether_lens")
                     {
-                        damage *= 1f + item.GetAbilityData("spell_amp") / 100f;
+                        totalSpellAmp += item.GetAbilityData("spell_amp") / 100f;
                     }
                 }
             }
@@ -859,16 +852,17 @@ namespace Ensage.Common.Extensions.Damage
 
             if (hero != null && spellName != "axe_culling_blade")
             {
-                damage *= 1f + hero.TotalIntelligence / 16f / 100f;
+                totalSpellAmp += (100f + hero.TotalIntelligence / 16f) / 100f;
+                damage *= totalSpellAmp;
             }
 
             var taken = target.DamageTaken(
-                damage, 
-                dmgType, 
-                source, 
-                throughBKB, 
-                minusArmor, 
-                minusDamageResistancePerc, 
+                damage,
+                dmgType,
+                source,
+                throughBKB,
+                minusArmor,
+                minusDamageResistancePerc,
                 minusMagicResistancePerc);
             return taken;
         }

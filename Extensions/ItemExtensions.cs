@@ -1,5 +1,5 @@
 ﻿// <copyright file="ItemExtensions.cs" company="EnsageSharp">
-//    Copyright (c) 2016 EnsageSharp.
+//    Copyright (c) 2017 EnsageSharp.
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -14,6 +14,8 @@
 namespace Ensage.Common.Extensions
 {
     using System;
+
+    using Ensage.Common.Enums;
 
     /// <summary>
     ///     The item extensions.
@@ -69,6 +71,16 @@ namespace Ensage.Common.Extensions
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        ///     Returns the Item ID.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static ItemId GetItemId(this Item item)
+        {
+            return (ItemId)item.AbilityData2.ID;
         }
 
         #endregion

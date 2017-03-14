@@ -1,5 +1,5 @@
 ﻿// <copyright file="Names.cs" company="EnsageSharp">
-//    Copyright (c) 2016 EnsageSharp.
+//    Copyright (c) 2017 EnsageSharp.
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
 // </copyright>
 namespace Ensage.Common.Objects
 {
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
 
     /// <summary>
     ///     The names.
@@ -25,7 +25,7 @@ namespace Ensage.Common.Objects
         /// <summary>
         ///     The name dictionary.
         /// </summary>
-        private static Dictionary<float, string> nameDictionary = new Dictionary<float, string>();
+        private static ConcurrentDictionary<float, string> nameDictionary = new ConcurrentDictionary<float, string>();
 
         #endregion
 
@@ -55,7 +55,7 @@ namespace Ensage.Common.Objects
             }
 
             name = entity.Name;
-            nameDictionary.Add(handle, name);
+            nameDictionary.TryAdd(handle, name);
             return name;
         }
 
@@ -83,7 +83,7 @@ namespace Ensage.Common.Objects
             }
 
             name = entity.Name;
-            nameDictionary.Add(handle, name);
+            nameDictionary.TryAdd(handle, name);
             return name;
         }
 
@@ -96,7 +96,7 @@ namespace Ensage.Common.Objects
         /// </summary>
         internal static void Init()
         {
-            nameDictionary = new Dictionary<float, string>();
+            nameDictionary = new ConcurrentDictionary<float, string>();
         }
 
         #endregion

@@ -1,5 +1,5 @@
 ﻿// <copyright file="Orbwalking.cs" company="EnsageSharp">
-//    Copyright (c) 2016 EnsageSharp.
+//    Copyright (c) 2017 EnsageSharp.
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,9 @@
 namespace Ensage.Common
 {
     using System;
+    using System.Runtime.CompilerServices;
 
+    using Ensage.Common.Menu;
     using Ensage.Common.Objects.UtilityObjects;
 
     /// <summary>
@@ -30,6 +32,11 @@ namespace Ensage.Common
         private static bool loaded;
 
         /// <summary>
+        ///     The menu.
+        /// </summary>
+        private static Menu.Menu menu;
+
+        /// <summary>
         ///     The orbwalker.
         /// </summary>
         private static Orbwalker orbwalker;
@@ -43,8 +50,21 @@ namespace Ensage.Common
         /// </summary>
         static Orbwalking()
         {
-            Load();
+            Events.OnLoad += OnLoad;
+            Events.OnClose += OnClose;
         }
+
+        #endregion
+
+        #region Public Properties
+
+        /// <summary>
+        ///     The user delay.
+        /// </summary>
+        public static float UserDelay { get; private set; }
+
+        /// <summary>Gets a value indicating whether enable orbwalking.</summary>
+        public static bool EnableOrbwalking { get; private set; }
 
         #endregion
 
@@ -78,7 +98,7 @@ namespace Ensage.Common
         /// </returns>
         public static bool AttackOnCooldown(Entity target = null, float bonusWindupMs = 0)
         {
-            return !orbwalker.CanAttack(target as Unit, bonusWindupMs);
+            return orbwalker.IsAttackOnCoolDown(target as Unit, bonusWindupMs);
         }
 
         /// <summary>
@@ -95,7 +115,7 @@ namespace Ensage.Common
         /// </returns>
         public static bool AttackOnCooldown(Unit target, float bonusWindupMs)
         {
-            return !orbwalker.CanAttack(target, bonusWindupMs);
+            return orbwalker.IsAttackOnCoolDown(target, bonusWindupMs);
         }
 
         /// <summary>
@@ -112,17 +132,8 @@ namespace Ensage.Common
             return orbwalker.CanCancelAttack(delay);
         }
 
-        /// <summary>
-        ///     Loads orbwalking if its not loaded yet
-        /// </summary>
         public static void Load()
         {
-            Events.OnLoad += Events_OnLoad;
-            Events.OnClose += Events_OnClose;
-            if (Game.IsInGame)
-            {
-                Events_OnLoad(null, null);
-            }
         }
 
         /// <summary>
@@ -144,10 +155,10 @@ namespace Ensage.Common
         ///     The follow Target.
         /// </param>
         public static void Orbwalk(
-            Unit target, 
-            float bonusWindupMs = 0, 
-            float bonusRange = 0, 
-            bool attackmodifiers = false, 
+            Unit target,
+            float bonusWindupMs = 0,
+            float bonusRange = 0,
+            bool attackmodifiers = false,
             bool followTarget = false)
         {
             orbwalker.OrbwalkOn(target, bonusWindupMs, bonusRange, attackmodifiers, followTarget);
@@ -156,6 +167,11 @@ namespace Ensage.Common
         #endregion
 
         #region Methods
+
+        private static void EnableDebugMenuItem_ValueChanged(object sender, OnValueChangeEventArgs e)
+        {
+            orbwalker.EnableDebug = e.GetNewValue<bool>();
+        }
 
         /// <summary>
         ///     The events_ on close.
@@ -166,34 +182,54 @@ namespace Ensage.Common
         /// <param name="e">
         ///     The e.
         /// </param>
-        private static void Events_OnClose(object sender, EventArgs e)
+        private static void OnClose(object sender, EventArgs e)
         {
-            if (!loaded)
-            {
-                return;
-            }
-
-            loaded = false;
+            // menu.Items.Remove(menu.Items.FirstOrDefault(x => x.Name == ObjectManager.LocalHero?.Name + "Common.Orbwalking.UserDelay"));
+            orbwalker.Unit = null;
+            Menu.Menu.Root.RemoveSubMenu(menu.Name);
+            menu = null;
         }
 
-        /// <summary>
-        ///     The events_ on load.
-        /// </summary>
-        /// <param name="sender">
-        ///     The sender.
-        /// </param>
-        /// <param name="e">
-        ///     The e.
-        /// </param>
-        private static void Events_OnLoad(object sender, EventArgs e)
+        private static void OnLoad(object sender, EventArgs eventArgs)
         {
-            if (loaded)
+            if (menu == null)
             {
-                return;
+                menu = Menu.Menu.Root.AddSubMenu(new Menu.Menu("Orbwalking", "Common.Orbwalking"));
+
+                var enableOrbwalker =
+                    menu.AddItem(
+                        new MenuItem(
+                                "common.orbwalking.enable",
+                                "Enable orbwalking for " + Game.Localize(ObjectManager.LocalHero.Name),
+                                true).SetValue(true)
+                            .SetTooltip(
+                                "Disable this if you dont want currently picked hero to move between attacks. Consider adjusting the AttackCancelDelay below in case attack is getting canceled"));
+                enableOrbwalker.ValueChanged += (o, args) =>
+                    { EnableOrbwalking = args.GetNewValue<bool>(); };
+                EnableOrbwalking = enableOrbwalker.GetValue<bool>();
+
+                var enableDebugMenuItem = menu.AddItem(new MenuItem("common.orbwalking.debug", "Debug").SetValue(false));
+                enableDebugMenuItem.ValueChanged += EnableDebugMenuItem_ValueChanged;
+
+                var userDelayMenuItem =
+                    menu.AddItem(
+                        new MenuItem("Common.Orbwalking.UserDelay", "Attack cancel delay", true).SetValue(
+                                new Slider(0, -200, 200))
+                            .SetTooltip(
+                                "Minus value=attack animation gets canceled sooner, Plus value=attack animation gets canceled later (set plus value in case your hero is canceling attacks)"));
+
+                UserDelay = userDelayMenuItem.GetValue<Slider>().Value;
+                userDelayMenuItem.ValueChanged += (o, args) => { UserDelay = args.GetNewValue<Slider>().Value; };
             }
 
-            loaded = true;
-            orbwalker = new Orbwalker(ObjectManager.LocalHero);
+            if (orbwalker == null)
+            {
+                orbwalker = new Orbwalker(ObjectManager.LocalHero);
+            }
+            else
+            {
+                orbwalker.Unit = ObjectManager.LocalHero;
+            }
         }
 
         #endregion

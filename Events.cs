@@ -1,5 +1,5 @@
 // <copyright file="Events.cs" company="EnsageSharp">
-//    Copyright (c) 2016 EnsageSharp.
+//    Copyright (c) 2017 EnsageSharp.
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -15,12 +15,16 @@ namespace Ensage.Common
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     using Ensage.Common.AbilityInfo;
     using Ensage.Common.Extensions;
     using Ensage.Common.Extensions.Damage;
     using Ensage.Common.Objects;
+    using Ensage.Common.Threading;
 
     /// <summary>
     ///     Provides custom events
@@ -29,15 +33,13 @@ namespace Ensage.Common
     {
         #region Static Fields
 
-        /// <summary>
-        ///     The loaded.
-        /// </summary>
-        private static bool loaded;
+        private static readonly EdgeTrigger IngameTrigger = new EdgeTrigger();
 
-        /// <summary>
-        ///     The unloaded.
-        /// </summary>
-        private static bool unloaded = true;
+        private static readonly List<Delegate> NotifiedSubscribers = new List<Delegate>();
+
+        private static readonly Type Type;
+
+        private static CancellationTokenSource loaderTask;
 
         #endregion
 
@@ -48,33 +50,12 @@ namespace Ensage.Common
         /// </summary>
         static Events()
         {
-            Load();
-            Game.OnUpdate += args =>
-                {
-                    CallOnUpdate();
-                    if (!Game.IsInGame || ObjectManager.LocalHero == null || !ObjectManager.LocalHero.IsValid)
-                    {
-                        if (!unloaded)
-                        {
-                            CallOnClose();
-                            Load();
-                            unloaded = true;
-                        }
+            Type = MethodBase.GetCurrentMethod().DeclaringType;
 
-                        loaded = false;
-                        return;
-                    }
+            IngameTrigger.Fallen += IngameTriggerOnFallen;
+            IngameTrigger.Risen += IngameTriggerOnRisen;
 
-                    if (loaded)
-                    {
-                        return;
-                    }
-
-                    unloaded = false;
-                    loaded = true;
-                    Load();
-                    DelayAction.Add(500 + Game.Ping, CallOnLoad);
-                };
+            Game.OnUpdate += UpdateTrigger;
         }
 
         #endregion
@@ -125,34 +106,30 @@ namespace Ensage.Common
 
         #region Methods
 
-        /// <summary>
-        ///     The call on close.
-        /// </summary>
-        private static void CallOnClose()
+        private static void IngameTriggerOnFallen(object sender, EventArgs eventArgs)
         {
-            OnClose?.Invoke(MethodBase.GetCurrentMethod().DeclaringType, EventArgs.Empty);
+            Console.WriteLine("Unloading...");
+
+            // cleanup
+            StopLoader();
+
+            // raise and reset framework
+            OnClose?.Invoke(Type, EventArgs.Empty);
+            Init();
         }
 
-        /// <summary>
-        ///     Calls the OnLoad event.
-        /// </summary>
-        private static void CallOnLoad()
+        private static void IngameTriggerOnRisen(object sender, EventArgs eventArgs)
         {
-            OnLoad?.Invoke(MethodBase.GetCurrentMethod().DeclaringType, EventArgs.Empty);
-        }
+            Console.WriteLine("Loading...");
 
-        /// <summary>
-        ///     The call on update.
-        /// </summary>
-        private static void CallOnUpdate()
-        {
-            OnUpdate?.Invoke(EventArgs.Empty);
+            Init();
+            StartLoader();
         }
 
         /// <summary>
         ///     The load.
         /// </summary>
-        private static void Load()
+        private static void Init()
         {
             AbilityDatabase.Init();
             AbilityDamage.Init();
@@ -164,6 +141,63 @@ namespace Ensage.Common
             Calculations.Init();
             EntityExtensions.Init();
             Utils.Sleeps = new Dictionary<string, double>();
+            NotifiedSubscribers.Clear();
+        }
+
+        private static void StartLoader()
+        {
+            loaderTask = new CancellationTokenSource();
+            Task.Factory.StartNew(UpdateOnLoad, loaderTask.Token);
+        }
+
+        private static void StopLoader()
+        {
+            loaderTask?.Cancel();
+        }
+
+        private static async void UpdateOnLoad()
+        {
+            while (!loaderTask.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Delay(250, loaderTask.Token);
+
+                    if (OnLoad == null)
+                    {
+                        continue;
+                    }
+
+                    if (!IngameTrigger.Value)
+                    {
+                        continue;
+                    }
+
+                    var subscribers = OnLoad.GetInvocationList();
+
+                    foreach (var subscriber in subscribers.Where(s => !NotifiedSubscribers.Contains(s)))
+                    {
+                        NotifiedSubscribers.Add(subscriber);
+
+                        GameDispatcher.BeginInvoke(() => { subscriber.DynamicInvoke(Type, EventArgs.Empty); });
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine("Stopped LoaderTask");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static void UpdateTrigger(EventArgs args)
+        {
+            OnUpdate?.Invoke(EventArgs.Empty);
+
+            IngameTrigger.Value = Game.IsInGame && ObjectManager.LocalHero != null && ObjectManager.LocalHero.IsValid;
         }
 
         #endregion

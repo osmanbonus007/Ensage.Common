@@ -1,5 +1,5 @@
 ﻿// <copyright file="Heroes.cs" company="EnsageSharp">
-//    Copyright (c) 2016 EnsageSharp.
+//    Copyright (c) 2017 EnsageSharp.
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
@@ -16,6 +16,8 @@ namespace Ensage.Common.Objects
     using System;
     using System.Collections.Generic;
     using System.Linq;
+
+    using Ensage.Common.Objects.UtilityObjects;
 
     /// <summary>
     ///     The heroes.
@@ -44,10 +46,16 @@ namespace Ensage.Common.Objects
         /// </summary>
         private static bool loaded;
 
+        /// <summary>The teams.</summary>
+        private static Dictionary<Team, List<Hero>> teams;
+
         /// <summary>
         ///     The temp list.
         /// </summary>
         private static List<Hero> tempList;
+
+        /// <summary>The update sleeper.</summary>
+        private static Sleeper updateSleeper;
 
         #endregion
 
@@ -61,6 +69,7 @@ namespace Ensage.Common.Objects
             All = new List<Hero>();
             Dire = new List<Hero>();
             Radiant = new List<Hero>();
+            teams = new Dictionary<Team, List<Hero>>();
             Events.OnLoad += (sender, args) =>
                 {
                     if (loaded)
@@ -92,6 +101,13 @@ namespace Ensage.Common.Objects
 
         #endregion
 
+        #region Public Properties
+
+        /// <summary>Gets or sets the teams.</summary>
+        public static IReadOnlyDictionary<Team, List<Hero>> Teams => teams;
+
+        #endregion
+
         #region Public Methods and Operators
 
         /// <summary>
@@ -105,7 +121,9 @@ namespace Ensage.Common.Objects
         /// </returns>
         public static List<Hero> GetByTeam(Team team)
         {
-            return team == Team.Radiant ? Radiant : Dire;
+            return team == Team.Radiant
+                       ? Radiant
+                       : (team == Team.Dire ? Dire : teams.FirstOrDefault(x => x.Key == team).Value);
         }
 
         /// <summary>
@@ -121,13 +139,13 @@ namespace Ensage.Common.Objects
                 return;
             }
 
-            if (!Utils.SleepCheck("Common.Heroes.Update") || All.Count(x => x.IsValid) >= 10)
+            if (updateSleeper.Sleeping || !Game.IsCustomGame && All.Count(x => x.IsValid) >= 10)
             {
                 return;
             }
 
             UpdateHeroes();
-            Utils.Sleep(1000, "Common.Heroes.Update");
+            updateSleeper.Sleep(1000);
         }
 
         /// <summary>
@@ -150,14 +168,32 @@ namespace Ensage.Common.Objects
                     herolist.Add(hero);
                 }
 
-                if (!Radiant.Contains(hero) && hero.Team == Team.Radiant)
+                if (hero.Team == Team.Radiant)
                 {
-                    herolistRadiant.Add(hero);
+                    if (!Radiant.Contains(hero))
+                    {
+                        herolistRadiant.Add(hero);
+                    }
                 }
-
-                if (!Dire.Contains(hero) && hero.Team == Team.Dire)
+                else if (hero.Team == Team.Dire)
                 {
-                    herolistDire.Add(hero);
+                    if (!Dire.Contains(hero))
+                    {
+                        herolistDire.Add(hero);
+                    }
+                }
+                else
+                {
+                    List<Hero> list;
+                    if (!teams.TryGetValue(hero.Team, out list))
+                    {
+                        list = new List<Hero> { hero };
+                        teams.Add(hero.Team, list);
+                        continue;
+                    }
+
+                    var temp = new List<Hero>(list) { hero };
+                    teams[hero.Team] = temp;
                 }
             }
 
@@ -175,21 +211,28 @@ namespace Ensage.Common.Objects
         /// </summary>
         private static void Load()
         {
+            updateSleeper = new Sleeper();
             All = new List<Hero> { ObjectManager.LocalHero };
             Dire = new List<Hero>();
             Radiant = new List<Hero>();
+            teams = new Dictionary<Team, List<Hero>> { { Team.Radiant, Radiant }, { Team.Dire, Dire } };
             if (ObjectManager.LocalHero.Team == Team.Dire)
             {
                 Dire.Add(ObjectManager.LocalHero);
             }
-            else
+            else if (ObjectManager.LocalHero.Team == Team.Radiant)
             {
                 Radiant.Add(ObjectManager.LocalHero);
             }
+            else
+            {
+                teams.Add(ObjectManager.LocalHero.Team, new List<Hero> { ObjectManager.LocalHero });
+            }
 
             tempList = Players.All.Where(x => x.Hero != null && x.Hero.IsValid).Select(x => x.Hero).ToList();
-            foreach (
-                var hero in ObjectManager.GetEntities<Hero>().Where(hero => tempList.All(x => x.Handle != hero.Handle)))
+            foreach (var hero in
+                ObjectManager.GetEntities<Hero>()
+                    .Where(hero => !hero.IsIllusion && tempList.All(x => x.Handle != hero.Handle)))
             {
                 tempList.Add(hero);
             }
@@ -208,33 +251,45 @@ namespace Ensage.Common.Objects
         /// </param>
         private static void ObjectMgr_OnAddEntity(EntityEventArgs args)
         {
-            DelayAction.Add(
-                200, 
-                () =>
-                    {
-                        var hero = args.Entity as Hero;
-                        if (hero == null)
-                        {
-                            return;
-                        }
+            var hero = args.Entity as Hero;
+            if (hero == null || hero.IsIllusion)
+            {
+                return;
+            }
 
-                        tempList.Add(hero);
-                        if (!All.Contains(hero))
-                        {
-                            All.Add(hero);
-                        }
+            tempList.Add(hero);
+            if (!All.Contains(hero))
+            {
+                All.Add(hero);
+            }
 
-                        if (!Radiant.Contains(hero) && hero.Team == Team.Radiant)
-                        {
-                            Radiant.Add(hero);
-                            return;
-                        }
+            if (hero.Team == Team.Radiant)
+            {
+                if (!Radiant.Contains(hero))
+                {
+                    Radiant.Add(hero);
+                }
+            }
+            else if (hero.Team == Team.Dire)
+            {
+                if (!Dire.Contains(hero))
+                {
+                    Dire.Add(hero);
+                }
+            }
+            else
+            {
+                List<Hero> list;
+                if (!teams.TryGetValue(hero.Team, out list))
+                {
+                    list = new List<Hero> { hero };
+                    teams.Add(hero.Team, list);
+                    return;
+                }
 
-                        if (!Dire.Contains(hero) && hero.Team == Team.Dire)
-                        {
-                            Dire.Add(hero);
-                        }
-                    });
+                var temp = new List<Hero>(list) { hero };
+                teams[hero.Team] = temp;
+            }
         }
 
         /// <summary>
@@ -246,7 +301,7 @@ namespace Ensage.Common.Objects
         private static void ObjectMgr_OnRemoveEntity(EntityEventArgs args)
         {
             var hero = args.Entity as Hero;
-            if (hero == null)
+            if (hero == null || hero.IsIllusion)
             {
                 return;
             }
@@ -257,15 +312,28 @@ namespace Ensage.Common.Objects
                 All.Remove(hero);
             }
 
-            if (Radiant.Contains(hero) && hero.Team == Team.Radiant)
+            if (hero.Team == Team.Radiant)
             {
-                Radiant.Remove(hero);
-                return;
+                if (Radiant.Contains(hero))
+                {
+                    Radiant.Remove(hero);
+                }
             }
-
-            if (Dire.Contains(hero) && hero.Team == Team.Dire)
+            else if (hero.Team == Team.Dire)
             {
-                Dire.Remove(hero);
+                if (Dire.Contains(hero))
+                {
+                    Dire.Remove(hero);
+                }
+            }
+            else
+            {
+                if (!teams.ContainsKey(hero.Team))
+                {
+                    return;
+                }
+
+                teams[hero.Team].Remove(hero);
             }
         }
 
