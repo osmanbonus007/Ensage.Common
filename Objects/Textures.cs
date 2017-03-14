@@ -169,6 +169,29 @@ namespace Ensage.Common.Objects
 
             texture = FindTexture(name);
             TextureDictionary.Add(name, texture);
+            return texture; 
+        }
+        
+        /// <summary>
+        ///     The get spell texture.
+        /// </summary>
+        /// <param name="otherName">
+        ///     The spell name.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="DotaTexture" />.
+        /// </returns>
+        public static DotaTexture GetSpellTexture(string otherName)
+        {
+            var name = "materials/ensage_ui/other/" + otherName + ".vmat";
+            DotaTexture texture;
+            if (TextureDictionary.TryGetValue(name, out texture))
+            {
+                return texture;
+            }
+
+            texture = FindTexture(name);
+            TextureDictionary.Add(name, texture);
             return texture;
         }
 
