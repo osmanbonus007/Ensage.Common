@@ -634,12 +634,17 @@ namespace Ensage.Common.Menu
             return subMenu;
         }
 
+        public void AddToMainMenu()
+        {
+            this.AddToMainMenu(Assembly.GetCallingAssembly());
+        }
+
         /// <summary>
         ///     The add to main menu.
         /// </summary>
-        public void AddToMainMenu()
+        public void AddToMainMenu(Assembly assembly)
         {
-            var rootName = Assembly.GetCallingAssembly().GetName().Name + "." + this.Name;
+            var rootName = assembly.GetName().Name + "." + this.Name;
             if (!RootMenus.ContainsKey(rootName))
             {
                 RootMenus.Add(rootName, this);
@@ -653,7 +658,7 @@ namespace Ensage.Common.Menu
                 Game.OnWndProc += this.Game_OnWndProc;
             }
 
-            this.InitMenuState(Assembly.GetCallingAssembly().GetName().Name);
+            this.InitMenuState(assembly.GetName().Name);
 
             DelayAction.Add(2000, this.SetHeroTogglers);
             var bonus = 0f;
@@ -683,8 +688,9 @@ namespace Ensage.Common.Menu
                         "Arial",
                         new Vector2((float)(this.Height * 0.48), 100),
                         FontFlags.AntiAlias).X + bonus);
-            this.OrderNumber = menuCount;
+
             menuCount++;
+            this.UpdateDraggableOrder();
         }
 
         /// <summary>
@@ -766,14 +772,20 @@ namespace Ensage.Common.Menu
             return tempItem;
         }
 
+        public void RemoveFromMainMenu()
+        {
+            RemoveFromMainMenu(Assembly.GetCallingAssembly());
+        }
+
         /// <summary>
         ///     The remove from main menu.
         /// </summary>
-        public void RemoveFromMainMenu()
+        public void RemoveFromMainMenu(Assembly assembly)
         {
             try
             {
-                var rootName = Assembly.GetCallingAssembly().GetName().Name + "." + this.Name;
+                var rootName = assembly.GetName().Name + "." + this.Name;
+
                 if (RootMenus.ContainsKey(rootName))
                 {
                     RootMenus.Remove(rootName);
@@ -785,11 +797,21 @@ namespace Ensage.Common.Menu
                     Drawing.OnDraw -= this.Drawing_OnDraw;
                     Game.OnWndProc -= this.Game_OnWndProc;
                     this.UnloadMenuState();
+
                     menuCount--;
+                    this.UpdateDraggableOrder();
                 }
             }
             catch (Exception)
             {
+            }
+        }
+
+        private void UpdateDraggableOrder()
+        {
+            for (var i = 0; i < RootMenusDraggable.Count; i++)
+            {
+                RootMenusDraggable[i].OrderNumber = i + 1;
             }
         }
 

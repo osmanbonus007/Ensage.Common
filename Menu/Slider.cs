@@ -82,5 +82,10 @@ namespace Ensage.Common.Menu
         }
 
         #endregion
+
+        public static implicit operator int(Slider slider)
+        {
+            return slider.Value;
+        }
     }
 }

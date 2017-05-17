@@ -54,11 +54,26 @@ namespace Ensage.Common.Menu
         /// <param name="defaultValue">
         ///     The default value.
         /// </param>
-        public KeyBind(uint key, KeyBindType type, bool defaultValue = false)
+        public KeyBind(uint key, KeyBindType type = KeyBindType.Press, bool defaultValue = false)
         {
             this.Key = key;
             this.Active = defaultValue;
             this.Type = type;
+        }
+
+        public static implicit operator bool(KeyBind keyBind)
+        {
+            return keyBind.Active;
+        }
+
+        public static implicit operator KeyBindType(KeyBind keyBind)
+        {
+            return keyBind.Type;
+        }
+
+        public static implicit operator uint(KeyBind keyBind)
+        {
+            return keyBind.Key;
         }
 
         #endregion
